@@ -26,7 +26,8 @@ public class Credito extends Cuenta {
     }
 
     public double getCuota() {
-        return valorPrestado * Math.pow(1 + tasa, plazo) * tasa / (Math.pow(1 + tasa, plazo) - 1);
+        double t = tasa / 100;
+        return valorPrestado * Math.pow(1 + t, plazo) * t / (Math.pow(1 + t, plazo) - 1);
     }
 
     public void pagar(double cantidad) {
@@ -37,6 +38,22 @@ public class Credito extends Cuenta {
         } else {
             System.out.println("Ya la deuda está pagada");
         }
+    }
+
+    public double getValorPrestado() {
+        return valorPrestado;
+    }
+
+    public double getTasa() {
+        return tasa;
+    }
+
+    public double getPlazo() {
+        return plazo;
+    }
+
+    public double getValorRetirado() {
+        return valorRetirado;
     }
 
 }
