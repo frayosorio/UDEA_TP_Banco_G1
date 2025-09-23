@@ -28,12 +28,19 @@ public abstract class Cuenta {
         this.saldo = saldo;
     }
 
-    public void consignar(double cantidad) {
+    public boolean consignar(double cantidad) {
         if (cantidad > 0) {
             this.saldo += cantidad;
+            return true;
         }
+        return false;
     }
 
     public abstract boolean retirar(double cantidad);
+
+    @Override
+    public String toString() {
+        return numero + "  " + titular;
+    }
 
 }
