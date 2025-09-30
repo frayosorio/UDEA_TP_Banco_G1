@@ -20,27 +20,35 @@ public class CuentaServicio {
     private static String[] encabezadosCuentas = new String[] { "Tipo", "Número", "Titular", "Saldo",
             "Sobregiro", "Valor Prestado", "Tasa", "Plazo", "Cuota" };
 
+    public static Cuenta getCuenta(int posicion) {
+        if (posicion >= 0 && posicion < cuentas.size()) {
+            return cuentas.get(posicion);
+        } else {
+            throw new IllegalArgumentException("Posición no existente de la cuenta");
+        }
+    }
+
     public static void mostrar(JTable tblCuentas) {
         String[][] datos = null;
         if (cuentas.size() > 0) {
             datos = new String[cuentas.size()][encabezadosCuentas.length];
 
             int fila = 0;
-            for (Cuenta c : cuentas) {
-                if (c != null) {
-                    datos[fila][0] = c instanceof Ahorros ? "Ahorros"
-                            : c instanceof Corriente ? "Corriente" : "Crédito";
-                    datos[fila][1] = c.getNumero();
-                    datos[fila][2] = c.getTitular();
+            for (Cuenta cuenta : cuentas) {
+                if (cuenta != null) {
+                    datos[fila][0] = cuenta instanceof Ahorros ? "Ahorros"
+                            : cuenta instanceof Corriente ? "Corriente" : "Crédito";
+                    datos[fila][1] = cuenta.getNumero();
+                    datos[fila][2] = cuenta.getTitular();
 
                     DecimalFormat df = new DecimalFormat("#,##0.00");
 
-                    datos[fila][3] = df.format(c.getSaldo());
-                    datos[fila][4] = c instanceof Corriente ? df.format(((Corriente) c).getSobregiro()) : "";
-                    datos[fila][5] = c instanceof Credito ? df.format(((Credito) c).getValorPrestado()) : "";
-                    datos[fila][6] = c instanceof Credito ? df.format(((Credito) c).getTasa()) : "";
-                    datos[fila][7] = c instanceof Credito ? df.format(((Credito) c).getPlazo()) : "";
-                    datos[fila][8] = c instanceof Credito ? df.format(((Credito) c).getCuota()) : "";
+                    datos[fila][3] = df.format(cuenta.getSaldo());
+                    datos[fila][4] = cuenta instanceof Corriente ? df.format(((Corriente) cuenta).getSobregiro()) : "";
+                    datos[fila][5] = cuenta instanceof Credito ? df.format(((Credito) cuenta).getValorPrestado()) : "";
+                    datos[fila][6] = cuenta instanceof Credito ? df.format(((Credito) cuenta).getTasa()) : "";
+                    datos[fila][7] = cuenta instanceof Credito ? df.format(((Credito) cuenta).getPlazo()) : "";
+                    datos[fila][8] = cuenta instanceof Credito ? df.format(((Credito) cuenta).getCuota()) : "";
                 }
                 fila++;
             }

@@ -25,12 +25,10 @@ import javax.swing.table.DefaultTableModel;
 
 import modelos.*;
 import servicios.CuentaServicio;
+import servicios.TransaccionServicio;
 import servicios.UtilServicio;
 
 public class FrmBanco extends JFrame {
-
-    private String[] encabezadosTransacciones = new String[] { "Cuenta", "Tipo", "Valor", "Saldo", "Estado" };
-    private String[] opcionesTransaccion = new String[] { "Consignación o Pago", "Retiro" };
 
     private JTable tblCuentas, tblTransacciones;
     private JPanel pnlEditarCuenta, pnlEditarTransaccion;
@@ -41,8 +39,6 @@ public class FrmBanco extends JFrame {
     private JLabel lblSobregiro, lblSaldoInicial, lblPlazo;
 
     private JTabbedPane tp;
-
-    private List<Transaccion> transacciones = new ArrayList<>();
 
     public FrmBanco() {
         setSize(600, 400);
@@ -223,10 +219,8 @@ public class FrmBanco extends JFrame {
         lblTipo.setBounds(10, 40, 100, 25);
         pnlEditarTransaccion.add(lblTipo);
 
-        cmbTipoTransaccion = new JComboBox();
+        cmbTipoTransaccion = new JComboBox(TipoTransaccion.values());
         cmbTipoTransaccion.setBounds(110, 40, 100, 25);
-        DefaultComboBoxModel mdlTipoTransaccion = new DefaultComboBoxModel(opcionesTransaccion);
-        cmbTipoTransaccion.setModel(mdlTipoTransaccion);
         pnlEditarTransaccion.add(cmbTipoTransaccion);
 
         JLabel lblValor = new JLabel("Valor");
@@ -261,8 +255,7 @@ public class FrmBanco extends JFrame {
         tblTransacciones = new JTable();
         JScrollPane spListaTransacciones = new JScrollPane(tblTransacciones);
 
-        DefaultTableModel dtm = new DefaultTableModel(null, encabezadosTransacciones);
-        tblTransacciones.setModel(dtm);
+        TransaccionServicio.mostrar(tblTransacciones);
 
         // Agregar componentes
         pnlTransacciones.add(pnlEditarTransaccion);
@@ -337,67 +330,30 @@ public class FrmBanco extends JFrame {
     }
 
     private void btnGuardarTransaccionClick() {
-        /*
-         * pnlEditarTransaccion.setVisible(false);
-         * double valor = Double.parseDouble(txtValor.getText());
-         * if (cmbTipoTransaccion.getSelectedIndex() >= 0 &&
-         * cmbCuenta.getSelectedIndex() >= 0 && valor > 0) {
-         * Cuenta cuenta = cuentas.get(cmbCuenta.getSelectedIndex());
-         * double saldo = 0;
-         * boolean aceptada = false;
-         * switch (cmbTipoTransaccion.getSelectedIndex()) {
-         * case 0:
-         * if (cuenta instanceof Credito) {
-         * Credito credito = (Credito) cuenta;
-         * aceptada = credito.pagar(valor);
-         * saldo = credito.getValorPrestado() - credito.getSaldo();
-         * } else {
-         * aceptada = cuenta.consignar(valor);
-         * saldo = cuenta.getSaldo();
-         * }
-         * break;
-         * case 1:
-         * aceptada = cuenta.retirar(valor);
-         * if (cuenta instanceof Credito) {
-         * Credito credito = (Credito) cuenta;
-         * saldo = credito.getValorPrestado() - credito.getValorRetirado();
-         * } else {
-         * saldo = cuenta.getSaldo();
-         * }
-         * break;
-         * }
-         * Transaccion transaccion = new Transaccion(cuenta,
-         * opcionesTransaccion[cmbTipoTransaccion.getSelectedIndex()],
-         * valor, saldo, !aceptada);
-         * transacciones.add(transaccion);
-         * mostrarTransacciones();
-         * } else {
-         * JOptionPane.showMessageDialog(null,
-         * "Debe seleccionar la cuenta y el tipo de transacción, asi como un valor positivo de la transacción"
-         * );
-         * }
-         */
+        pnlEditarTransaccion.setVisible(false);
+        try {
+            double valor = UtilServicio.leerReal(txtValor.getText());
+
+            if (cmbTipoTransaccion.getSelectedIndex() >= 0 &&
+                    cmbCuenta.getSelectedIndex() >= 0 && valor > 0) {
+
+                Cuenta cuenta = CuentaServicio.getCuenta(cmbCuenta.getSelectedIndex());
+                TransaccionServicio.agregar(cuenta, (TipoTransaccion) cmbTipoTransaccion.getSelectedItem(), valor);
+
+                TransaccionServicio.mostrar(tblTransacciones);
+            } else {
+                JOptionPane.showMessageDialog(null,
+                        "Debe seleccionar la cuenta y el tipo de transacción, asi como un valor positivo de la transacción");
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage());
+        }
+
     }
 
     private void btnCancelarTransaccionClick() {
         pnlEditarTransaccion.setVisible(false);
 
-    }
-
-    private void mostrarTransacciones() {
-        String[][] datos = new String[transacciones.size()][encabezadosTransacciones.length];
-        int fila = 0;
-        DecimalFormat df = new DecimalFormat("#,##0.00");
-        for (Transaccion t : transacciones) {
-            datos[fila][0] = t.getCuenta().toString();
-            datos[fila][1] = t.getTipo();
-            datos[fila][2] = df.format(t.getValor());
-            datos[fila][3] = df.format(t.getSaldo());
-            datos[fila][4] = t.isRechazada() ? "Rechazada" : "Aceptada";
-            fila++;
-        }
-        DefaultTableModel dtm = new DefaultTableModel(datos, encabezadosTransacciones);
-        tblTransacciones.setModel(dtm);
     }
 
 }
