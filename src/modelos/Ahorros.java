@@ -1,5 +1,7 @@
 package modelos;
 
+import java.text.DecimalFormat;
+
 public class Ahorros extends Cuenta {
     private final double TASA_INTERES = 0.02;
 
@@ -22,6 +24,18 @@ public class Ahorros extends Cuenta {
     public void abonarIntereses() {
         setSaldo(getSaldo() * (1 + TASA_INTERES));
         System.out.println("Intereses mensuales abonados. Nuevo saldo:" + getSaldo());
+    }
+
+    @Override
+    public String[] mostrarValores() {
+        DecimalFormat df = new DecimalFormat("#,##0.00");
+        return new String[] {
+                "Ahorros",
+                getNumero(),
+                getTitular(),
+                df.format(getSaldo()),
+                "", "", "", "", ""
+        };
     }
 
 }

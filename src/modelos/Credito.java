@@ -1,13 +1,15 @@
 package modelos;
 
+import java.text.DecimalFormat;
+
 public class Credito extends Cuenta {
 
     private double valorPrestado;
     private double tasa;
-    private double plazo;
+    private int plazo;
     private double valorRetirado;
 
-    public Credito(String titular, String numero, double valorPrestado, double tasa, double plazo) {
+    public Credito(String titular, String numero, double valorPrestado, double tasa, int plazo) {
         super(titular, numero, 0);
         this.valorPrestado = valorPrestado;
         this.tasa = tasa;
@@ -49,12 +51,30 @@ public class Credito extends Cuenta {
         return tasa;
     }
 
-    public double getPlazo() {
-        return plazo;
-    }
+
 
     public double getValorRetirado() {
         return valorRetirado;
+    }
+
+    public int getPlazo() {
+        return plazo;
+    }
+
+    @Override
+    public String[] mostrarValores() {
+        DecimalFormat df = new DecimalFormat("#,##0.00");
+        return new String[] {
+                "Ahorros",
+                getNumero(),
+                getTitular(),
+                df.format(getSaldo()),
+                "", 
+                df.format(valorPrestado),
+                df.format(tasa),
+                df.format(plazo),
+                df.format(getCuota())
+        }; 
     }
 
 }

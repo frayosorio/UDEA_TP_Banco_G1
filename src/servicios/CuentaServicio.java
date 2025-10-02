@@ -10,6 +10,7 @@ import javax.swing.table.DefaultTableModel;
 import modelos.Ahorros;
 import modelos.Corriente;
 import modelos.Credito;
+import modelos.CreditoRotativo;
 import modelos.Cuenta;
 import modelos.TipoCuenta;
 
@@ -36,19 +37,7 @@ public class CuentaServicio {
             int fila = 0;
             for (Cuenta cuenta : cuentas) {
                 if (cuenta != null) {
-                    datos[fila][0] = cuenta instanceof Ahorros ? "Ahorros"
-                            : cuenta instanceof Corriente ? "Corriente" : "Crédito";
-                    datos[fila][1] = cuenta.getNumero();
-                    datos[fila][2] = cuenta.getTitular();
-
-                    DecimalFormat df = new DecimalFormat("#,##0.00");
-
-                    datos[fila][3] = df.format(cuenta.getSaldo());
-                    datos[fila][4] = cuenta instanceof Corriente ? df.format(((Corriente) cuenta).getSobregiro()) : "";
-                    datos[fila][5] = cuenta instanceof Credito ? df.format(((Credito) cuenta).getValorPrestado()) : "";
-                    datos[fila][6] = cuenta instanceof Credito ? df.format(((Credito) cuenta).getTasa()) : "";
-                    datos[fila][7] = cuenta instanceof Credito ? df.format(((Credito) cuenta).getPlazo()) : "";
-                    datos[fila][8] = cuenta instanceof Credito ? df.format(((Credito) cuenta).getCuota()) : "";
+                    datos[fila] = cuenta.mostrarValores();
                 }
                 fila++;
             }
@@ -72,6 +61,12 @@ public class CuentaServicio {
                 break;
             case CREDITO:
                 cuenta = new Credito(titular, numero,
+                        saldoInicial,
+                        sobregiro,
+                        plazo);
+                break;
+            case CREDITO_ROTATIVO:
+                cuenta = new CreditoRotativo(titular, numero,
                         saldoInicial,
                         sobregiro,
                         plazo);

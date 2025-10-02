@@ -134,7 +134,7 @@ public class FrmBanco extends JFrame {
                         lblPlazo.setVisible(false);
                         txtPlazo.setVisible(false);
                         break;
-                    case 2:
+                    case 2, 3:
                         lblSaldoInicial.setText("Valor Prestado");
                         lblSobregiro.setText("Tasa");
                         lblSobregiro.setVisible(true);
