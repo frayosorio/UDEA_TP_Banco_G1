@@ -1,13 +1,9 @@
 import java.awt.event.ActionListener;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 
 import javax.swing.BoxLayout;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -21,10 +17,15 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.WindowConstants;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.text.AbstractDocument;
 
+import configuracion.ConfigIUCuenta;
 import modelos.*;
 import servicios.CuentaServicio;
+import servicios.MascaraAlfaNumerica;
+import servicios.MascaraAlfabetica;
+import servicios.MascaraNumeroEntero;
+import servicios.MascaraNumeroReal;
 import servicios.TransaccionServicio;
 import servicios.UtilServicio;
 
@@ -114,37 +115,17 @@ public class FrmBanco extends JFrame {
         cmbTipoCuenta.setBounds(220, 10, 100, 25);
         pnlEditarCuenta.add(cmbTipoCuenta);
 
-        cmbTipoCuenta.addActionListener(new ActionListener() {
+        cmbTipoCuenta.addActionListener(e -> {
+            ConfigIUCuenta configuracion=ConfigIUCuenta.getConfiguraciones().get(cmbTipoCuenta.getSelectedItem());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                switch (cmbTipoCuenta.getSelectedIndex()) {
-                    case 0:
-                        lblSaldoInicial.setText("Saldo Inicial");
-                        lblSobregiro.setVisible(false);
-                        txtSobregiro.setVisible(false);
-                        lblPlazo.setVisible(false);
-                        txtPlazo.setVisible(false);
-                        break;
-                    case 1:
-                        lblSaldoInicial.setText("Saldo Inicial");
-                        lblSobregiro.setText("Sobregiro");
-                        lblSobregiro.setVisible(true);
-                        txtSobregiro.setVisible(true);
-                        lblPlazo.setVisible(false);
-                        txtPlazo.setVisible(false);
-                        break;
-                    case 2, 3:
-                        lblSaldoInicial.setText("Valor Prestado");
-                        lblSobregiro.setText("Tasa");
-                        lblSobregiro.setVisible(true);
-                        txtSobregiro.setVisible(true);
-                        lblPlazo.setVisible(true);
-                        txtPlazo.setVisible(true);
-                        break;
-                }
+            lblSaldoInicial.setText(configuracion.getTextoSaldo());
+            lblSobregiro.setVisible(configuracion.isMostrarSobregiro());
+            txtSobregiro.setVisible(configuracion.isMostrarSobregiro());
+            if(configuracion.isMostrarSobregiro()){
+                lblSobregiro.setText(configuracion.getTextoSobregiro());    
             }
-
+            lblPlazo.setVisible(configuracion.isMostrarPlazo());
+            txtPlazo.setVisible(configuracion.isMostrarPlazo());
         });
 
         lblSobregiro = new JLabel("Sobregiro");
@@ -273,6 +254,14 @@ public class FrmBanco extends JFrame {
         getContentPane().add(tp, BorderLayout.CENTER);
 
         cmbTipoCuenta.setSelectedIndex(0);
+
+        ((AbstractDocument) (txtSaldoInicial.getDocument())).setDocumentFilter(new MascaraNumeroReal());
+        ((AbstractDocument) (txtSobregiro.getDocument())).setDocumentFilter(new MascaraNumeroReal());
+        ((AbstractDocument) (txtPlazo.getDocument())).setDocumentFilter(new MascaraNumeroEntero());
+        ((AbstractDocument) (txtNumero.getDocument())).setDocumentFilter(new MascaraAlfaNumerica());
+
+        ((AbstractDocument) (txtTitular.getDocument())).setDocumentFilter(new MascaraAlfabetica());
+
     }
 
     private void btnAgregarCuentaClick() {
