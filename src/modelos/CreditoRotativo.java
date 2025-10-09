@@ -2,7 +2,10 @@ package modelos;
 
 import java.text.DecimalFormat;
 
-public class CreditoRotativo extends Cuenta {
+import interfaces.IPagable;
+import interfaces.IRetirable;
+
+public class CreditoRotativo extends Cuenta implements IPagable, IRetirable {
 
     private double cupoPrestamo;
     private double tasa;
@@ -31,25 +34,26 @@ public class CreditoRotativo extends Cuenta {
         return cupoPrestamo - getSaldo();
     }
 
-    public double getPagoMinimo() {
+    @Override
+    public double getCuota() {
         double t = tasa / 100;
         return getSaldoPrestamo() * Math.pow(1 + t, plazo) * t / (Math.pow(1 + t, plazo) - 1);
     }
 
-    public boolean pagar(double cantidad){
-        System.out.println("saldo="+getSaldo()+" cupo="+cupoPrestamo);
+    public boolean pagar(double cantidad) {
+        System.out.println("saldo=" + getSaldo() + " cupo=" + cupoPrestamo);
         if (getSaldo() < cupoPrestamo) {
             var intereses = getSaldoPrestamo() * tasa / 100;
             var abonoCapital = cantidad - intereses;
             System.out.println("Pago existoso. Nuevo saldo disponible :" + getSaldo());
-            return consignar(abonoCapital);
+            return incrementarSaldo(abonoCapital);
         } else {
             System.out.println("No hay deuda a pagar");
             return false;
         }
     }
 
-        @Override
+    @Override
     public String[] mostrarValores() {
         DecimalFormat df = new DecimalFormat("#,##0.00");
         return new String[] {
@@ -57,12 +61,29 @@ public class CreditoRotativo extends Cuenta {
                 getNumero(),
                 getTitular(),
                 df.format(getSaldo()),
-                "", 
+                "",
                 df.format(cupoPrestamo),
                 df.format(tasa),
                 df.format(plazo),
                 ""
-        }; 
+        };
+    }
+
+    @Override
+    public ResultadoTransaccionDto procesarTransaccion(TipoTransaccion tipo, double valor) {
+        boolean aceptada = false;
+        double saldo = cupoPrestamo;
+        switch (tipo) {
+            case CONSIGNACION_PAGO:
+                aceptada = pagar(valor);
+                saldo = getSaldo();
+                break;
+            case RETIRO:
+                aceptada = retirar(valor);
+                saldo = getSaldo();
+                break;
+        }
+        return new ResultadoTransaccionDto(aceptada, saldo);
     }
 
 }

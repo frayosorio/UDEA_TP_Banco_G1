@@ -9,43 +9,22 @@ import javax.swing.table.DefaultTableModel;
 
 import modelos.Credito;
 import modelos.Cuenta;
+import modelos.ResultadoTransaccionDto;
 import modelos.TipoTransaccion;
 import modelos.Transaccion;
 
 public class TransaccionServicio {
 
-    private static final int SALDO_PREDETERMINADO = 0;
 
     private static List<Transaccion> transacciones = new ArrayList<>();
     private static String[] encabezadosTransacciones = new String[] { "Cuenta", "Tipo", "Valor", "Saldo", "Estado" };
 
     public static void agregar(Cuenta cuenta, TipoTransaccion tipo, double valor) {
-        double saldo = SALDO_PREDETERMINADO;
-        boolean aceptada = false;
-        switch (tipo) {
-            case CONSIGNACION_PAGO:
-                if (cuenta instanceof Credito) {
-                    Credito credito = (Credito) cuenta;
-                    aceptada = credito.pagar(valor);
-                    saldo = credito.getValorPrestado() - credito.getSaldo();
-                } else {
-                    aceptada = cuenta.consignar(valor);
-                    saldo = cuenta.getSaldo();
-                }
-                break;
-            case RETIRO:
-                aceptada = cuenta.retirar(valor);
-                if (cuenta instanceof Credito) {
-                    Credito credito = (Credito) cuenta;
-                    saldo = credito.getValorPrestado() - credito.getValorRetirado();
-                } else {
-                    saldo = cuenta.getSaldo();
-                }
-                break;
-        }
+
+        ResultadoTransaccionDto resultado = cuenta.procesarTransaccion(tipo, valor);
         Transaccion transaccion = new Transaccion(cuenta,
                 tipo.toString(),
-                valor, saldo, !aceptada);
+                valor, resultado.getSaldo(), !resultado.isAceptada());
         transacciones.add(transaccion);
     }
 

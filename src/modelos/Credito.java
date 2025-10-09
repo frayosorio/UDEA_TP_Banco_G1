@@ -2,7 +2,10 @@ package modelos;
 
 import java.text.DecimalFormat;
 
-public class Credito extends Cuenta {
+import interfaces.IPagable;
+import interfaces.IRetirable;
+
+public class Credito extends Cuenta implements IPagable, IRetirable{
 
     private double valorPrestado;
     private double tasa;
@@ -27,16 +30,18 @@ public class Credito extends Cuenta {
         }
     }
 
+    @Override
     public double getCuota() {
         double t = tasa / 100;
         return valorPrestado * Math.pow(1 + t, plazo) * t / (Math.pow(1 + t, plazo) - 1);
     }
 
+    @Override
     public boolean pagar(double cantidad) {
         if (getSaldo() < valorPrestado) {
             var intereses = (valorPrestado - getSaldo()) * tasa / 100;
             var abonoCapital = cantidad - intereses;
-            return consignar(abonoCapital);
+            return incrementarSaldo(abonoCapital);
         } else {
             System.out.println("Ya la deuda está pagada");
             return false;
@@ -50,8 +55,6 @@ public class Credito extends Cuenta {
     public double getTasa() {
         return tasa;
     }
-
-
 
     public double getValorRetirado() {
         return valorRetirado;
@@ -69,12 +72,29 @@ public class Credito extends Cuenta {
                 getNumero(),
                 getTitular(),
                 df.format(getSaldo()),
-                "", 
+                "",
                 df.format(valorPrestado),
                 df.format(tasa),
                 df.format(plazo),
                 df.format(getCuota())
-        }; 
+        };
+    }
+
+    @Override
+    public ResultadoTransaccionDto procesarTransaccion(TipoTransaccion tipo, double valor) {
+        boolean aceptada = false;
+        double saldo = valorPrestado;
+        switch (tipo) {
+            case CONSIGNACION_PAGO:
+                aceptada = pagar(valor);
+                saldo = valorPrestado - getSaldo();
+                break;
+            case RETIRO:
+                aceptada = retirar(valor);
+                saldo = valorPrestado - valorRetirado;
+                break;
+        }
+        return new ResultadoTransaccionDto(aceptada, saldo);
     }
 
 }

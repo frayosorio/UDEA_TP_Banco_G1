@@ -28,16 +28,18 @@ public abstract class Cuenta {
         this.saldo = saldo;
     }
 
-    public boolean consignar(double cantidad) {
-        if (cantidad > 0) {
-            this.saldo += cantidad;
-            return true;
+    protected boolean incrementarSaldo(double cantidad) {
+        if (cantidad <= 0) {
+             System.out.println("Cantidad no valida");
+            return false;
         }
-        return false;
+        this.saldo += cantidad;
+        return true;
     }
 
-    public abstract boolean retirar(double cantidad);
+    // metodos abstractos
     public abstract String[] mostrarValores();
+    public abstract ResultadoTransaccionDto procesarTransaccion(TipoTransaccion tipo, double valor);
 
     @Override
     public String toString() {
